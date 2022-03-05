@@ -18,16 +18,24 @@ func restricted(c echo.Context) error {
 
 func main() {
 	e := echo.New()
-
+	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000", "http://localhost:3000"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	}))
 
 	e.POST("/login", controller.LoginController)
+	e.POST("/register", controller.UserRegister)
 
 	e.GET("/test", controller.UserController)
 	e.GET("/hello", hello())
 
 	r := e.Group("/restricted")
+	r.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:3000", "http://localhost:3000"},
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	}))
 	r.Use(middleware.JWT([]byte("secret")))
 	r.GET("", restricted)
 

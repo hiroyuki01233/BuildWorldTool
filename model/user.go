@@ -8,14 +8,18 @@ import (
 
 type User struct {
 	ID        uint      `json:"id"`
-	Name      string    `json:"name" gorm:"type:varchar(255);not null"`
-	Email     string    `json:"email" gorm:"type:varchar(255);not null"`
+	UserName  string    `json:"name" gorm:"type:varchar(255);not null"`
+	Password  string    `json:"password" gorm:"type:varchar(255);not null"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (p *User) FirstById(id uint) (tx *gorm.DB) {
 	return DB.Where("id = ?", id).First(&p)
+}
+
+func (p *User) FirstByUserName(username string) (tx *gorm.DB) {
+	return DB.Where("user_name = ?", username).First(&p)
 }
 
 func (p *User) Create() (tx *gorm.DB) {
@@ -38,4 +42,19 @@ func (p *User) Delete() (tx *gorm.DB) {
 
 func (p *User) DeleteById(id uint) (tx *gorm.DB) {
 	return DB.Where("id = ?", id).Delete(&p)
+}
+
+func (p *User) IsExistsByUserName(username string) bool {
+	var count int64
+	DB.Where("user_name = ?", username).Find(&p).Count(&count)
+	if count > 0 {
+		return true
+	} else {
+		return false
+	}
+	// if count > 0 {
+	// 	log.Error("username already used")
+	// 	resp := c.JSON(http.StatusConflict, helper.ErrorLog(http.StatusConflict, "username already used", "EXT_REF"))
+	// 	return resp
+	// }
 }
