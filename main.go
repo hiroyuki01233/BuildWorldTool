@@ -18,12 +18,35 @@ func restricted(c echo.Context) error {
 
 func main() {
 	e := echo.New()
+	e.Use(
+		middleware.CORSWithConfig(middleware.CORSConfig{
+			AllowCredentials: true,
+			AllowOrigins:     []string{"http://localhost:3000"},
+			AllowHeaders: []string{
+				echo.HeaderAccessControlAllowHeaders,
+				echo.HeaderAccessControlAllowOrigin,
+				echo.HeaderContentType,
+				echo.HeaderContentLength,
+				echo.HeaderAcceptEncoding,
+				echo.HeaderXCSRFToken,
+				echo.HeaderAuthorization,
+				echo.HeaderOrigin,
+				echo.HeaderAccept,
+				echo.HeaderAccessControlAllowCredentials,
+			},
+			AllowMethods: []string{
+				http.MethodGet,
+				http.MethodPut,
+				http.MethodPatch,
+				http.MethodPost,
+				http.MethodDelete,
+			},
+			MaxAge: 86400,
+		}),
+	)
+
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000", "http://localhost:3000"},
-		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
-	}))
 
 	e.POST("/login", controller.LoginController)
 	e.POST("/register", controller.UserRegister)
@@ -32,10 +55,12 @@ func main() {
 	e.GET("/hello", hello())
 
 	r := e.Group("/restricted")
-	r.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000", "http://localhost:3000"},
-		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
-	}))
+	// r.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	// 	AllowCredentials: bool(true),
+	// 	// AllowOrigins:     []string{"http://localhost:3000"},
+	// 	AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+	// 	AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	// }))
 	r.Use(middleware.JWT([]byte("secret")))
 	r.GET("", restricted)
 

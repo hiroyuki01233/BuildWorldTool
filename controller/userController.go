@@ -37,6 +37,7 @@ func UserController(c echo.Context) error {
 }
 
 func UserRegister(c echo.Context) error {
+	c.Response().Header().Set(echo.HeaderAccessControlAllowOrigin, "http://localhost:3000")
 	jsonBody := make(map[string]interface{})
 	err := json.NewDecoder(c.Request().Body).Decode(&jsonBody)
 	if err != nil {
@@ -74,7 +75,14 @@ func UserRegister(c echo.Context) error {
 		return err
 	}
 
+	cookie := new(http.Cookie)
+	cookie.Name = "jwt"
+	cookie.Value = t
+	cookie.Secure = false
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	c.SetCookie(cookie)
+
 	return c.JSON(http.StatusOK, map[string]string{
-		"token": t,
+		"response": "ok",
 	})
 }
