@@ -25,6 +25,18 @@ func GetProjectByProjectNameAndAdminName(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllProjects(c echo.Context) error {
+	userInfo := c.Get("user").(*jwt.Token)
+	claims := userInfo.Claims.(jwt.MapClaims)
+	idInt, _ := strconv.Atoi(claims["id"].(string))
+	var id uint = uint(idInt)
+
+	result := model.GetAllProjectsById(id)
+
+	return c.JSON(http.StatusOK, result)
+
+}
+
 // most need name as project name, and title
 func CreateProject(c echo.Context) error {
 	userInfo := c.Get("user").(*jwt.Token)
@@ -58,6 +70,7 @@ func CreateProject(c echo.Context) error {
 	ProjectData.Create()
 
 	return c.JSON(http.StatusOK, map[string]string{
-		"message": "success",
+		"projectName": jsonBody["name"].(string),
+		"adminName":   claims["name"].(string),
 	})
 }

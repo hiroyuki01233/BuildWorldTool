@@ -18,7 +18,8 @@ type Msg struct {
 }
 
 type Claims struct {
-	ID string `json:"id"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 	jwt.StandardClaims
 }
 
@@ -37,11 +38,23 @@ func UserLogin(c echo.Context) error {
 		return c.JSON(http.StatusOK, "password is wrong")
 	}
 
-	token := jwt.New(jwt.SigningMethodHS256)
+	// token := jwt.New(jwt.SigningMethodHS256)
 
-	claims := token.Claims.(jwt.MapClaims)
-	claims["id"] = strconv.FormatUint(uint64(user.ID), 10)
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	// claims := token.Claims.(jwt.MapClaims)
+	// claims["id"] = strconv.FormatUint(uint64(user.ID), 10)
+	// claims["name"] = user.Name
+	// claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	// return c.JSON(http.StatusOK, user.Name)
+
+	claims := &Claims{
+		ID:   strconv.FormatUint(uint64(user.ID), 10),
+		Name: user.Name,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString([]byte("secret"))
 	if err != nil {
@@ -88,7 +101,8 @@ func UserRegister(c echo.Context) error {
 	}
 
 	claims := &Claims{
-		ID: strconv.FormatUint(uint64(UserInfo.ID), 10),
+		ID:   strconv.FormatUint(uint64(UserInfo.ID), 10),
+		Name: UserInfo.Name,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},

@@ -20,6 +20,21 @@ type Project struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
+type ProjectAndUser struct {
+	ID          uint      `gorm:"primary_key;AUTO_INCREMENT"`
+	AdminId     uint      `gorm:"not null;" json:"admin_id"`
+	AdminName   string    `gorm:"not null;" json:"admin_name"`
+	Name        string    `gorm:"type:varchar(255);not null;" json:"name"`
+	Title       string    `gorm:"type:varchar(255);not null;" json:"title"`
+	SubTitle    string    `gorm:"type:varchar(255);" json:"sub_title"`
+	Description string    `gorm:"type:text;" json:"description"`
+	MainText    string    `gorm:"type:mediumtext;" json:"main_text"`
+	Chronology  string    `gorm:"type:mediumtext;" json:"chronology"`
+	Idea        string    `gorm:"type:mediumtext;" json:"idea"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
 type ResultUserAndProject struct {
 	UserName    string
 	Name        string
@@ -39,6 +54,13 @@ func (p *Project) GetByNameAndAdminName(projectName string, adminName string) Re
 
 func (p *Project) Create() (tx *gorm.DB) {
 	return DB.Create(&p)
+}
+
+func GetAllProjectsById(userId uint) []ProjectAndUser {
+	var projects []ProjectAndUser
+	DB.Model(&User{}).Select("users.name as admin_name, projects.name, projects.title, projects.sub_title, projects.description, projects.main_text, projects.chronology, projects.idea, projects.updated_at").Joins("left join projects on projects.admin_id = users.id").Where("projects.admin_id = ?", userId).Scan(&projects)
+	// DB.Where("admin_id= ?", userId).Find(&projects)
+	return projects
 }
 
 func (p *Project) IsExistsByProjectNameAndUserId(projectName string, userId uint) bool {

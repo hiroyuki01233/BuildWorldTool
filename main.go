@@ -43,7 +43,7 @@ var config = middleware.CORSConfig{
 func restricted(c echo.Context) error {
 	user := c.Get("user").(*jwt.Token)
 	claims := user.Claims.(jwt.MapClaims)
-	username := claims["username"].(string)
+	username := claims["name"].(string)
 	return c.String(http.StatusOK, "Welcome !"+username)
 }
 
@@ -76,6 +76,7 @@ func main() {
 	r.GET("/user", controller.GetUser)
 	r.POST("/project", controller.CreateProject)
 	r.GET("/project", controller.GetProjectByProjectNameAndAdminName)
+	r.GET("/projects", controller.GetAllProjects)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

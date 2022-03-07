@@ -19,7 +19,7 @@ func (p *User) FirstById(id uint) (tx *gorm.DB) {
 }
 
 func (p *User) FirstByName(name string) (tx *gorm.DB) {
-	return DB.Where("user_name = ?", name).First(&p)
+	return DB.Where("name = ?", name).First(&p)
 }
 
 func (p *User) Create() (tx *gorm.DB) {
@@ -46,7 +46,7 @@ func (p *User) DeleteById(id uint) (tx *gorm.DB) {
 
 func (p *User) IsExistsByUserName(name string) bool {
 	var count int64
-	DB.Where("user_name = ?", name).Find(&p).Count(&count)
+	DB.Where("name = ?", name).Find(&p).Count(&count)
 	if count > 0 {
 		return true
 	} else {
