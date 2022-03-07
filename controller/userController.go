@@ -5,24 +5,21 @@ import (
 	"src/model"
 	"strconv"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 )
 
-// Index is index route for health
-// func (hc *UserController) Index(c echo.Context) error {
-// 	u := &User{
-// 		Name:  "Jon",
-// 		Email: "jon@labstack.com",
-// 	}
-// 	return c.JSON(http.StatusOK, u)
-// }
-
-func UserController(c echo.Context) error {
-	i, _ := strconv.Atoi(c.QueryParam("id"))
-	id := uint(i)
+func GetUser(c echo.Context) error {
+	userInfo := c.Get("user").(*jwt.Token)
+	claims := userInfo.Claims.(jwt.MapClaims)
+	idInt, _ := strconv.Atoi(claims["id"].(string))
+	var id uint = uint(idInt)
 	user := model.User{}
 	user.FirstById(id)
 
-	return c.JSON(http.StatusOK, user)
-	// return c.String(http.StatusOK, "Hello, World!")
+	response := map[string]string{
+		"id": claims["id"].(string), "username": user.Name,
+	}
+
+	return c.JSON(http.StatusOK, response)
 }

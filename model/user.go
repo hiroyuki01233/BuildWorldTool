@@ -7,9 +7,9 @@ import (
 )
 
 type User struct {
-	ID        uint      `json:"id"`
-	UserName  string    `json:"name" gorm:"type:varchar(255);not null"`
-	Password  string    `json:"password" gorm:"type:varchar(255);not null"`
+	ID        uint      `gorm:"primary_key;AUTO_INCREMENT"`
+	Name      string    `gorm:"type:varchar(255);primary_key;" json:"username" gorm:"type:varchar(255);not null"`
+	Password  string    `gorm:"type:varchar(255);not null;" json:"password" gorm:"type:varchar(255);not null"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
@@ -18,8 +18,8 @@ func (p *User) FirstById(id uint) (tx *gorm.DB) {
 	return DB.Where("id = ?", id).First(&p)
 }
 
-func (p *User) FirstByUserName(username string) (tx *gorm.DB) {
-	return DB.Where("user_name = ?", username).First(&p)
+func (p *User) FirstByName(name string) (tx *gorm.DB) {
+	return DB.Where("user_name = ?", name).First(&p)
 }
 
 func (p *User) Create() (tx *gorm.DB) {
@@ -44,9 +44,9 @@ func (p *User) DeleteById(id uint) (tx *gorm.DB) {
 	return DB.Where("id = ?", id).Delete(&p)
 }
 
-func (p *User) IsExistsByUserName(username string) bool {
+func (p *User) IsExistsByUserName(name string) bool {
 	var count int64
-	DB.Where("user_name = ?", username).Find(&p).Count(&count)
+	DB.Where("user_name = ?", name).Find(&p).Count(&count)
 	if count > 0 {
 		return true
 	} else {

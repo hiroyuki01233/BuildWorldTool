@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"src/model"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -17,7 +18,7 @@ type Msg struct {
 }
 
 type Claims struct {
-	Username string `json:"username"`
+	ID string `json:"id"`
 	jwt.StandardClaims
 }
 
@@ -29,9 +30,7 @@ func UserLogin(c echo.Context) error {
 		return nil
 	}
 	user := model.User{}
-	user.FirstByUserName(jsonBody["username"].(string))
-
-	// return c.JSON(http.StatusOK, user)
+	user.FirstByName(jsonBody["name"].(string))
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(jsonBody["password"].(string)))
 	if err != nil {
@@ -41,21 +40,27 @@ func UserLogin(c echo.Context) error {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["username"] = user.UserName
+	claims["id"] = strconv.FormatUint(uint64(user.ID), 10)
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 
-	t, err := token.SignedString([]byte("secret"))
+	tokenString, err := token.SignedString([]byte("secret"))
 	if err != nil {
 		return err
 	}
 
+	cookie := new(http.Cookie)
+	cookie.Name = "token"
+	cookie.Value = tokenString
+	cookie.Secure = false
+	cookie.Expires = time.Now().Add(24 * time.Hour)
+	c.SetCookie(cookie)
+
 	return c.JSON(http.StatusOK, map[string]string{
-		"token": t,
+		"message": "success",
 	})
 }
 
 func UserRegister(c echo.Context) error {
-	c.Response().Header().Set(echo.HeaderAccessControlAllowOrigin, "http://localhost:3000")
 	jsonBody := make(map[string]interface{})
 	err := json.NewDecoder(c.Request().Body).Decode(&jsonBody)
 	if err != nil {
@@ -72,7 +77,7 @@ func UserRegister(c echo.Context) error {
 	user := model.User{}
 	existsFlg = user.IsExistsByUserName(jsonBody["username"].(string))
 	var UserInfo = model.User{
-		UserName: jsonBody["username"].(string),
+		Name:     jsonBody["username"].(string),
 		Password: string(hash),
 	}
 	if !existsFlg {
@@ -83,7 +88,7 @@ func UserRegister(c echo.Context) error {
 	}
 
 	claims := &Claims{
-		Username: UserInfo.UserName,
+		ID: strconv.FormatUint(uint64(UserInfo.ID), 10),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
