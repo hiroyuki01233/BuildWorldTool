@@ -88,9 +88,9 @@ func UserRegister(c echo.Context) error {
 
 	var existsFlg bool
 	user := model.User{}
-	existsFlg = user.IsExistsByUserName(jsonBody["username"].(string))
+	existsFlg = user.IsExistsByUserName(jsonBody["name"].(string))
 	var UserInfo = model.User{
-		Name:     jsonBody["username"].(string),
+		Name:     jsonBody["name"].(string),
 		Password: string(hash),
 	}
 	if !existsFlg {

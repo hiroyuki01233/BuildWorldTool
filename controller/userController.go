@@ -18,7 +18,7 @@ func GetUser(c echo.Context) error {
 	user.FirstById(id)
 
 	response := map[string]string{
-		"id": claims["id"].(string), "username": user.Name,
+		"id": claims["id"].(string), "name": user.Name,
 	}
 
 	return c.JSON(http.StatusOK, response)

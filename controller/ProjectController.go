@@ -13,15 +13,15 @@ import (
 
 // most need project name and admin name
 func GetProjectByProjectNameAndAdminName(c echo.Context) error {
-	jsonBody := make(map[string]interface{})
-	err := json.NewDecoder(c.Request().Body).Decode(&jsonBody)
-	if err != nil {
-		log.Error("empty json body")
-		return nil
-	}
+	// jsonBody := make(map[string]interface{})
+	// err := json.NewDecoder(c.Request().Body).Decode(&jsonBody)
+	// if err != nil {
+	// 	log.Error("empty json body")
+	// 	return c.JSON(http.StatusOK, "empty json body")
+	// }
 
 	project := model.Project{}
-	result := project.GetByNameAndAdminName(jsonBody["projectName"].(string), jsonBody["adminName"].(string))
+	result := project.GetByNameAndAdminName(c.QueryParam("projectName"), c.QueryParam("adminName"))
 	return c.JSON(http.StatusOK, result)
 }
 
