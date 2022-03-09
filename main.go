@@ -79,6 +79,7 @@ func main() {
 	r.GET("/projects", controller.GetAllProjects)
 	r.POST("/character", controller.CreateCharacter)
 	r.GET("/characters", controller.GetAllCharactersByProjectId)
+	r.PATCH("/project/:id", controller.UpdateProject)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

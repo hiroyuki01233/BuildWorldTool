@@ -78,3 +78,8 @@ func (p *Project) IsExistsByProjectNameAndUserId(projectName string, userId uint
 	// 	return resp
 	// }
 }
+
+func (p *Project) Update(id string, clumName string, body string) (tx *gorm.DB) {
+	// db.Model(&product).Updates(Product{Name: "hoge", Price: 20})
+	return DB.Model(&p).Where("id = ?", id).Update(clumName, body)
+}

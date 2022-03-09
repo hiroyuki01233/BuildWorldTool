@@ -74,3 +74,18 @@ func CreateProject(c echo.Context) error {
 		"adminName":   claims["name"].(string),
 	})
 }
+
+func UpdateProject(c echo.Context) error {
+	pid := c.Param("id")
+	jsonBody := make(map[string]interface{})
+	err := json.NewDecoder(c.Request().Body).Decode(&jsonBody)
+	if err != nil {
+		log.Error("empty json body")
+		return nil
+	}
+
+	Project := model.Project{}
+	Project.Update(pid, jsonBody["column"].(string), jsonBody["body"].(string))
+
+	return c.JSON(http.StatusOK, Project)
+}
