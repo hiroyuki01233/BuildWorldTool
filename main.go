@@ -77,6 +77,8 @@ func main() {
 	r.POST("/project", controller.CreateProject)
 	r.GET("/project", controller.GetProjectByProjectNameAndAdminName)
 	r.GET("/projects", controller.GetAllProjects)
+	r.POST("/character", controller.CreateCharacter)
+	r.GET("/characters", controller.GetAllCharactersByProjectId)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

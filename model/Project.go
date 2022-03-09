@@ -36,6 +36,7 @@ type ProjectAndUser struct {
 }
 
 type ResultUserAndProject struct {
+	Id          uint
 	UserName    string
 	Name        string
 	Title       string
@@ -48,7 +49,7 @@ type ResultUserAndProject struct {
 
 func (p *Project) GetByNameAndAdminName(projectName string, adminName string) ResultUserAndProject {
 	result := ResultUserAndProject{}
-	DB.Model(&User{}).Select("users.name as user_name, projects.name, projects.title, projects.sub_title, projects.description, projects.main_text, projects.chronology, projects.idea").Joins("left join projects on projects.admin_id = users.id").Where("projects.name = ? and users.name = ?", projectName, adminName).Scan(&result)
+	DB.Model(&User{}).Select("users.name as user_name, projects.id, projects.name, projects.title, projects.sub_title, projects.description, projects.main_text, projects.chronology, projects.idea").Joins("left join projects on projects.admin_id = users.id").Where("projects.name = ? and users.name = ?", projectName, adminName).Scan(&result)
 	return result
 }
 
